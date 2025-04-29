@@ -8,6 +8,9 @@ class Base(DeclarativeBase):
     created_at: Mapped[str] = mapped_column(TIMESTAMP, server_default=func.now())
     updated_at: Mapped[str] = mapped_column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
     
+    repr_cols_num = 3  # print first columns
+    repr_cols: tuple[str, ...] = ()  # extra printed columns
+
     def __repr__(self) -> str:
         cols = [
             f"{col}={getattr(self, col)}"

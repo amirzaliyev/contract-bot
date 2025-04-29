@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from .base import Base
 
 if TYPE_CHECKING:
-    from .contract import Contract
+    from .document import Document
 
 class UserRole(PyEnum):
     USER = "user"
@@ -44,5 +44,5 @@ class User(Base):
     is_block: Mapped[bool] = mapped_column(default=False)
     is_premium: Mapped[bool] = mapped_column(default=False)
 
-    contracts: Mapped[list['Contract']] = relationship(back_populates="owner")
+    documents: Mapped[list['Document']] = relationship(back_populates="owner")
 

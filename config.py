@@ -7,11 +7,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 if TYPE_CHECKING:
     from sqlalchemy.engine.url import URL
 
-DIR = Path(__file__).absolute().parent.parent
+# DIR = Path(__file__).absolute().parent
 BOT_DIR = Path(__file__).absolute().parent
 LOCALES_DIR = Path.joinpath(BOT_DIR, "locales")
 I18N_DOMAIN = "messages"
 DEFAULT_LOCALE = "en"
+DOCS_DIR = Path.joinpath(BOT_DIR, "docs")
+TEMPLATES_DIR = Path.joinpath(BOT_DIR, "static", "contract_files")
 
 class EnvBaseSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
@@ -49,4 +51,4 @@ class Settings(BotSettings, DBSettings):
 
 
 
-settings = Settings()
+settings = Settings() # type: ignore

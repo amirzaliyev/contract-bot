@@ -30,7 +30,7 @@ class UserValidator:
                 "❌ Please use the *Share Contact* button to send your own number."
             )
 
-        if message.contact.user_id != message.from_user.id:
+        if message.contact.user_id != message.from_user.id: # type: ignore
             raise NotActualNumber(
                 "❌ You must share *your own* contact, not someone else's."
             )

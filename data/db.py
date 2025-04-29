@@ -1,17 +1,16 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 from uuid import uuid4
 
 from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from config import settings
-from data.models import Base
+
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.url import URL
-
-
-
+    from data.models import Base
+    from sqlalchemy.orm import Session
 
 def get_engine(url: URL | str = settings.database_url) -> Engine:
     return create_engine(
@@ -20,10 +19,10 @@ def get_engine(url: URL | str = settings.database_url) -> Engine:
     )
 
 
-def get_sessionmaker(engine: Engine) -> sessionmaker[Session]:
+def get_sessionmaker(engine: Engine) -> 'sessionmaker[Session]':
     return sessionmaker(engine)
 
-def init_db(engine: Engine, base: Base):
+def init_db(engine: Engine, base: Type[Base]):
     base.metadata.create_all(engine)
 
 

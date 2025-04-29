@@ -12,14 +12,13 @@ from keyboards import create_contract_kb
 
 logging.basicConfig(
     level=logging.INFO,
-    stream = sys.stdout
+    stream=sys.stdout
 )
 
 
-
 class ConversationHandler(Handler):
-    
-    def register_handlers(self, router: Router) -> None:
+
+    def register_handlers(self, router: 'Router') -> None:
         """
         Registers all handlers to given router object.
         :param router - required
@@ -28,15 +27,13 @@ class ConversationHandler(Handler):
         router.message.register(self.cancel, Command("cancel"))
         logging.info("conversation handlers registered")
 
-
-    async def cmd_start(self, message: Message, state: FSMContext) -> None:
+    async def cmd_start(self, message: 'Message', state: 'FSMContext') -> None:
         await message.answer(
-            text = WELCOME_MESSAGE,
-            reply_markup = create_contract_kb()
+            text=WELCOME_MESSAGE,
+            reply_markup=create_contract_kb()
         )
 
-
-    async def cancel(self, message: Message, state: FSMContext) -> None:
+    async def cancel(self, message: 'Message', state: 'FSMContext') -> None:
         """
         Allow user to cancel any action
         """
@@ -45,18 +42,17 @@ class ConversationHandler(Handler):
 
         if current_state is None:
             return
-        
+
         logging.info("Cancelling state %r", current_state)
         await state.clear()
         await message.answer(
             "Cancelled.",
-            reply_markup = ReplyKeyboardRemove()
+            reply_markup=ReplyKeyboardRemove()
         )
 
-        
 
 def register_conversation_handler(
-    router: Router
+        router: 'Router'
 ):
     conv_handler = ConversationHandler()
     conv_handler.register_handlers(router=router)

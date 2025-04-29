@@ -1,47 +1,48 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
+from typing import TYPE_CHECKING
 
-from locales import CREATE_CONTRACT, REGISTER, SHARE_PHONE_NUMBER, MY_CONTRACTS
+from utils import InlineKeyboardService, ReplyKeyboardService
+from locales import CREATE_DOCUMENT, REGISTER, SHARE_PHONE_NUMBER, MY_DOCUMENTS
 
-def create_contract_kb() -> InlineKeyboardMarkup:
+if TYPE_CHECKING:
+    from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
-    return InlineKeyboardMarkup(
-        inline_keyboard = [
-            [
-                InlineKeyboardButton(
-                    text = CREATE_CONTRACT,
-                    callback_data = CREATE_CONTRACT
-                ),
-                InlineKeyboardButton(
-                    text=MY_CONTRACTS,
-                    callback_data=MY_CONTRACTS
-                )
-            ]
-        ]
-    )
+reply_kb_service = ReplyKeyboardService()
+inline_kb_service = InlineKeyboardService()
+
+text = "text"
+callback_data = "callback_data"
+request_contact = "request_contact"
+
+def create_contract_kb() -> 'InlineKeyboardMarkup':
+    create_contract = {
+        text: CREATE_DOCUMENT,
+        callback_data: CREATE_DOCUMENT
+    }
+    my_contracts = {
+        text: MY_DOCUMENTS,
+        callback_data: MY_DOCUMENTS
+    }
+    kbs = [create_contract, my_contracts]
+    size = [2]
+
+    return inline_kb_service.create_keyboard(buttons=kbs, size=size)
 
 
-def register_confirmation_kb() -> InlineKeyboardMarkup:
+def register_confirmation_kb() -> 'InlineKeyboardMarkup':
+    reg_confirmation = {
+        text: REGISTER,
+        callback_data: REGISTER
+    }
 
-    return InlineKeyboardMarkup(
-        inline_keyboard = [
-            [
-                InlineKeyboardButton(
-                    text = REGISTER,
-                    callback_data = REGISTER
-                )
-            ]
-        ]
-    )
+    kbs = [reg_confirmation]
+    return inline_kb_service.create_keyboard(buttons=kbs)
 
-def share_phone_number_kb() -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        keyboard = [
-            [
-                KeyboardButton(
-                    text = SHARE_PHONE_NUMBER,
-                    request_contact = True
-                )
-            ]
-        ],
-        resize_keyboard = True
-    )
+def share_phone_number_kb() -> 'ReplyKeyboardMarkup':
+    share_phone_num = {
+        text: SHARE_PHONE_NUMBER,
+        request_contact: True
+    }
+
+    kbs = [share_phone_num]
+
+    return reply_kb_service.create_keyboard(buttons=kbs)

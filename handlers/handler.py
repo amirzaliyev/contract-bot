@@ -6,7 +6,7 @@ from aiogram import Router
 class Handler(ABC):
     
     @abstractmethod
-    def register_handlers(router: Router) -> None:
+    def register_handlers(self, router: Router) -> None:
         """
         Registers all handlers to given router
         

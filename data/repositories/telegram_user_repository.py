@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
-from sqlalchemy.orm import Session
-from sqlalchemy import select
+from typing import TYPE_CHECKING
 
 from data.models import User
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session, sessionmaker
+    
 
 class ITelegramUserRepository(ABC):
 
@@ -64,7 +67,7 @@ class UserNotFound(Exception):
 
 class TelegramUserRepository(ITelegramUserRepository):
 
-    def __init__(self, session: 'Session'):
+    def __init__(self, session: 'sessionmaker[Session]'):
         
         # todo session validation...
 
@@ -78,7 +81,7 @@ class TelegramUserRepository(ITelegramUserRepository):
             tg_user = session.get(User, tg_user_id)
 
             if not tg_user:
-                raise UserNotFound(f"There is user record with {tg_user_id} id")
+                raise UserNotFound(f"There is no user record with id: {tg_user_id}")
             
         return tg_user
     

@@ -118,3 +118,9 @@ cython_debug/
 
 # Pycharm idea settings
 .idea/
+
+# VS code settings
+.vscode/
+
+# Templates and created documents
+*.docx
