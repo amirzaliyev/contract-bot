@@ -1,6 +1,8 @@
 from aiogram import F
 from typing import TYPE_CHECKING
 
+from locales.uz import NO_DOCUMENTS
+
 
 from .handler import Handler
 from data.repositories import IDocumentRepository, DocumentNotFound
@@ -37,7 +39,7 @@ class DocumentHandler(Handler):
     def register_handlers(self, router: 'Router'):
         
         router.callback_query.register(self.my_documents, F.data==MY_DOCUMENTS)
-        router.callback_query.register(self.document_templates, F.data==CREATE_DOCUMENT)
+        router.callback_query.register(self.my_templates, F.data==CREATE_DOCUMENT)
         
 
     
@@ -48,10 +50,10 @@ class DocumentHandler(Handler):
             await callback.answer()
 
         except NotImplementedError:
-            await callback.message.answer(NO_documentS) # type: ignore
+            await callback.message.answer(NO_DOCUMENTS) # type: ignore
 
 
-    async def document_templates(self, callback: 'CallbackQuery') -> None:
+    async def my_templates(self, callback: 'CallbackQuery') -> None:
         try:
             user_id = callback.from_user.id
             templates: list['Document'] = self._repo.get_all(
@@ -66,10 +68,6 @@ class DocumentHandler(Handler):
 
         except DocumentNotFound:
             await callback.message.answer(NO_TEMPLATES)  # type: ignore
-
-
-    
-
 
 
 

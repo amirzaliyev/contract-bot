@@ -26,7 +26,7 @@ class Document(Base):
             Status,
             values_callable=lambda x: [i.value for i in x]
         ),
-        server_default=Status.PUBLIC.value
+        server_default=Status.PRIVATE.value
     )
     file_path: Mapped[str]
     tg_file_id: Mapped[str | None]

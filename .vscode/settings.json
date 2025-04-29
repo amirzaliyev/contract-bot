@@ -21,7 +21,7 @@
     "python.analysis.autoImportCompletions": true,
     "editor.quickSuggestions": {
         "other": true,
-        "comments": false,
+        "comments": true,
         "strings": true
     },
     "python.analysis.typeCheckingMode": "basic",

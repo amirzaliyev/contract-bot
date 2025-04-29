@@ -1,6 +1,4 @@
 from typing import Dict, List, TYPE_CHECKING
-from pathlib import Path
-from datetime import datetime
 from aiogram import F
 from aiogram.types import FSInputFile
 from aiogram.fsm.state import State, StatesGroup
@@ -9,14 +7,14 @@ from aiogram.filters import and_f
 
 
 from data.repositories import ITemplateFieldsRepository
+from data.repositories.document_repository import IDocumentRepository
 from handlers.handler import Handler
 from locales.uz import NO_DETAILS, SUMMARY
 
 from .handler import Handler
 from data.repositories import DocumentNotFound
 from keyboards import doc_create_confirmation
-from utils.doc_editor import fill_template
-from config import DOCS_DIR, TEMPLATES_DIR
+from utils.doc_editor import DocumentService
 from locales import (
     CREATE_DOC, 
     YES, PROCESSING_DOC,
@@ -35,12 +33,13 @@ class FillTemplate(StatesGroup):
     create_doc = State()
     
     
-    
 class TemplateHandler(Handler):
     
     def __init__(
         self, 
-        template_field_repository: 'ITemplateFieldsRepository'
+        template_field_repository: 'ITemplateFieldsRepository',
+        doc_repository: 'IDocumentRepository',
+        doc_editor: 'DocumentService'
     ):
         if not isinstance(template_field_repository, ITemplateFieldsRepository):
             raise TypeError(
@@ -48,7 +47,21 @@ class TemplateHandler(Handler):
                 f"not {type(template_field_repository).__name__}"
             )
             
+        if not isinstance(doc_repository, IDocumentRepository):
+            raise TypeError(
+                "doc_repository should be instance of 'IDocumentRepository', not"+
+                f"\n {type(doc_repository).__name__}"
+            )
+            
+        if not isinstance(doc_editor, DocumentService):
+            raise TypeError(
+                "doc_editor should be instance of 'DocumentService', not" +
+                f"\n {type(doc_editor).__name__}" 
+            )
+        
         self._repo = template_field_repository
+        self._doc_repo = doc_repository
+        self._doc_editor = doc_editor
     
     def register_handlers(self, router: 'Router') -> None:
         router.callback_query.register(
@@ -78,6 +91,7 @@ class TemplateHandler(Handler):
         try: 
             await callback.answer()
             template_id_int = int(template_id.group(1))
+            await state.update_data(template_id=template_id_int)
             
             # Extract required fields from the template
             fields = self._extract_required_fields(
@@ -87,8 +101,10 @@ class TemplateHandler(Handler):
             await state.set_state(FillTemplate.filling_template)
             
             if not fields:
-                await callback.message.answer(NO_DETAILS) # type: ignore
-            
+                await callback.message.edit_text(NO_DETAILS) # type: ignore
+                await state.clear()
+                return      
+                  
             # Prepare fields that is required to be filled
             await state.update_data(
                 fields=fields,
@@ -100,7 +116,7 @@ class TemplateHandler(Handler):
                 text=fields[0]["description"]
             )
         
-        except (ValueError, DocumentNotFound) as e:
+        except ValueError as e:
             await callback.message.edit_text(str(e))  # type: ignore
 
 
@@ -119,6 +135,7 @@ class TemplateHandler(Handler):
                 
         return required_fields
 
+    
     async def fill_out_template(
         self, message: 'Message', 
         state: 'FSMContext'
@@ -185,12 +202,16 @@ class TemplateHandler(Handler):
             text=PROCESSING_DOC
         )
         await state.clear()
+        
+        # todo try catch block FileNotFoundError
+        
+        output_file_path = self._doc_editor.fill_template(
+            user_id=callback.from_user.id,
+            template_id=data['template_id'],
+            context=filled_data,
+        )
 
-        template = Path.joinpath(TEMPLATES_DIR, "template2.docx")
-        output_file = Path.joinpath(DOCS_DIR, f"Doc {datetime.now().timestamp()}.docx")
-        fill_template(template, output_path=output_file, context=filled_data)
-
-        await self.send_doc(callback.message, output_file)  # type: ignore
+        await self.send_doc(callback.message, output_file_path)  # type: ignore
 
 
     async def send_doc(self, message: 'Message', doc_path) -> None:
@@ -202,7 +223,13 @@ class TemplateHandler(Handler):
 
 def register_template_handler(
     router: 'Router', 
-    template_field_repository: 'ITemplateFieldsRepository'
+    template_field_repository: 'ITemplateFieldsRepository',
+    doc_repository: 'IDocumentRepository',
+    doc_editor: 'DocumentService'
 ) -> None:
-    template_handler = TemplateHandler(template_field_repository=template_field_repository)
+    template_handler = TemplateHandler(
+        template_field_repository=template_field_repository,
+        doc_repository=doc_repository,
+        doc_editor=doc_editor
+    )
     template_handler.register_handlers(router=router)

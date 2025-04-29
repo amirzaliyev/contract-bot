@@ -1,7 +1,7 @@
 -- select * from contracts;
 
 insert into documents(file_name, owner_id, status, file_path, is_template) VALUES
-('Ishga olish buyruq', 8131220463, 'private', 'static/contract_files/template2.docx', TRUE);
+('Mehnat shartnoma', 8131220463, 'public', 'static/contract_files/template2.docx', TRUE);
 -- drop table contract_details;
 -- drop table contracts;
 -- drop table users;
@@ -10,10 +10,10 @@ insert into documents(file_name, owner_id, status, file_path, is_template) VALUE
 
 -- select table_name from information_schema.tables where table_schema = 'public';
 
-insert into template_fields(field_name, description, detail_order, contract_id)
-values 
-    ('doc_number', 'Hujjat raqami', 1, 1),
-    ('fullname', 'Ishchining to''liq ismi', 2, 1);
+-- insert into template_fields(field_name, description, detail_order, contract_id)
+-- values 
+--     ('doc_number', 'Hujjat raqami', 1, 1),
+--     ('fullname', 'Ishchining to''liq ismi', 2, 1);
 
 
 

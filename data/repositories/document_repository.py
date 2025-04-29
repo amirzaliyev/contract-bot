@@ -1,13 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
+from sqlalchemy import or_
 
 from data.models import Document
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session, sessionmaker
-
-
-
 
 
 class IDocumentRepository(ABC):
@@ -86,9 +84,9 @@ class DocumentRepository(IDocumentRepository):
         
         with self._session() as session:
             documents = (
-                session.query(Document).filter_by(
-                    owner_id=owner_id, 
-                    is_template=is_template
+                session.query(Document).filter(
+                    or_(Document.owner_id==owner_id, Document.status=='public'),
+                    Document.is_template==is_template
                 )
             )
             
