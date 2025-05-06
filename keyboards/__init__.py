@@ -1,2 +1,2 @@
 from .user_keyboards import *
-from .contract_kb import *
+from .document_kb import *

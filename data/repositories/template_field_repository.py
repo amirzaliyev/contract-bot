@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class TemplateFieldNotFound(Exception):
     pass
 
-class ITemplateFieldsRepository(ABC):
+class ITemplateFieldRepository(ABC):
     
     @abstractmethod
     def get_all(self, document_id: int) -> List['TemplateField']:
@@ -48,7 +48,7 @@ class ITemplateFieldsRepository(ABC):
     
     
     @abstractmethod
-    def create_template_field(self, template_field: 'TemplateField') -> None:
+    def create_template_field(self, template_field: 'TemplateField') -> TemplateField:
         """
         Creates a new template field
 
@@ -71,7 +71,7 @@ class ITemplateFieldsRepository(ABC):
     
     
     
-class TemplateFieldRepository(ITemplateFieldsRepository):
+class TemplateFieldRepository(ITemplateFieldRepository):
     
     def __init__(self, sessionmaker: 'sessionmaker[Session]' ):
         
@@ -97,8 +97,14 @@ class TemplateFieldRepository(ITemplateFieldsRepository):
     def get_template_field_by_id(self, template_id: int) -> TemplateField:
         raise NotImplementedError("This method should be overridden in a subclass")
 
-    def create_template_field(self, template_field: TemplateField) -> None:
-        raise NotImplementedError("This method should be overridden in a subclass")
+    def create_template_field(self, template_field: TemplateField) -> TemplateField:
+        with self._session() as session:
+            session.add(template_field)
+            session.commit()
+            session.refresh(template_field)
+            return template_field
+
+
 
     def update_template_field(self, template_field: TemplateField) -> None:
         raise NotImplementedError("This method should be overridden in a subclass")

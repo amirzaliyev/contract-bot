@@ -5,7 +5,7 @@ class NotActualNumber(Exception):
 
 
 class UserValidator:
-    
+
     """
     Contains methods for validating user-submitted Telegram contact data.
     """
@@ -34,7 +34,6 @@ class UserValidator:
             raise NotActualNumber(
                 "❌ You must share *your own* contact, not someone else's."
             )
-        
+
         return message.contact.phone_number
-        
-        
+

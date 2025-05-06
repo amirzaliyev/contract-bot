@@ -1,8 +1,8 @@
-from .user_handler import *
-from .main_handler import *
-from .document_handler import *
-from .template_handler import *
-
+from .user import *
+from .main import *
+from .document import *
+from .template import *
+from .add_template import *
 
 # todo implement the logic
 

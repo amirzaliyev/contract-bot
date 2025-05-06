@@ -14,6 +14,7 @@ class Status(PyEnum):
     PRIVATE = "private"
     PUBLIC = "public"
 
+
 class Document(Base):
 
     __tablename__ = "documents"
@@ -22,17 +23,16 @@ class Document(Base):
     file_name: Mapped[str]
     owner_id: Mapped[int] = mapped_column(BIGINT, ForeignKey("users.id"), nullable=True)
     status: Mapped[str] = mapped_column(
-        ENUM(
-            Status,
-            values_callable=lambda x: [i.value for i in x]
-        ),
-        server_default=Status.PRIVATE.value
+        ENUM(Status, values_callable=lambda x: [i.value for i in x]),
+        server_default=Status.PRIVATE.value,
     )
     file_path: Mapped[str]
     tg_file_id: Mapped[str | None]
-    is_template: Mapped[bool] = mapped_column(default=False, server_default=text("FALSE"))
+    is_template: Mapped[bool] = mapped_column(
+        default=False, server_default=text("FALSE")
+    )
 
-    owner: Mapped['User'] = relationship(back_populates="documents")
+    owner: Mapped["User"] = relationship(back_populates="documents")
 
     # # Add a check constraint
     # __table_args__ = (
