@@ -8,22 +8,14 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import settings
-from handlers import (
-    register_user_handlers,
-    register_conversation_handler,
-    register_document_handler,
-    register_add_template_handler,
-    register_template_handler
-)
 from data import sessionmaker_factory
-from data.repositories import (
-    TelegramUserRepository,
-    DocumentRepository,
-    TemplateFieldRepository,
-)
+from data.repositories import (DocumentRepository, TelegramUserRepository,
+                               TemplateFieldRepository)
+from handlers import (register_add_template_handler,
+                      register_conversation_handler, register_document_handler,
+                      register_template_handler, register_user_handlers)
 from utils import UserValidator
 from utils.doc_editor import DocumentService
-
 
 bot_token = settings.BOT_TOKEN
 
@@ -43,7 +35,7 @@ async def main() -> None:
 
     # Register handlers
     conversation_router = Router(name="conversation")
-    register_conversation_handler(router=conversation_router)
+    conv_handler = register_conversation_handler(router=conversation_router)
 
     user_router = Router(name="user")
     register_user_handlers(
@@ -82,7 +74,11 @@ async def main() -> None:
     )
 
     await dp.start_polling(
-        bot, handle_as_tasks=True, tasks_concurrency_limit=5, handle_signals=True
+        bot,
+        handle_as_tasks=True,
+        tasks_concurrency_limit=5,
+        handle_signals=True,
+        conv_handler=conv_handler,
     )
 
 

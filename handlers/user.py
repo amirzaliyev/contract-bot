@@ -1,30 +1,27 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 from aiogram import F
 from aiogram.filters import CommandStart
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.fsm.state import StatesGroup, State
 
-from handlers.main import ConversationHandler
-from locales import (
-    CREATE_DOCUMENT,
-    REGISTER,
-    REGISTER_CONFIRMATION,
-    ASK_PHONE_NUMBER,
-    PHONE_NUMBER_SAVED,
-    SELECT_TEMPLATE,
-    RETURN_TO_MAIN,
-)
-from keyboards import register_confirmation_kb, share_phone_number_kb, return_to_main_kb
 from data.models import User
 from data.repositories import ITelegramUserRepository, UserNotFound
-from utils import UserValidator, NotActualNumber
+from handlers.main import ConversationHandler
+from keyboards import (register_confirmation_kb, return_to_main_kb,
+                       share_phone_number_kb)
+from locales import (ASK_PHONE_NUMBER, PHONE_NUMBER_SAVED, REGISTER,
+                     REGISTER_CONFIRMATION, RETURN_TO_MAIN)
+from utils import NotActualNumber, UserValidator
+
 from .handler import Handler
 
 if TYPE_CHECKING:
     from aiogram import Router
-    from aiogram.types import Message, CallbackQuery
     from aiogram.fsm.context import FSMContext
+    from aiogram.types import CallbackQuery, Message
 
 
 class UserRegistrationForm(StatesGroup):
@@ -63,7 +60,7 @@ class UserHandler(Handler):
         Registers all handlers to given router object.
         :param router - required
         """
-        router.callback_query.register(self.authenticate, CommandStart())
+        router.message.register(self.authenticate, CommandStart())
         router.callback_query.register(self.confirm_registration, F.data == REGISTER)
         router.message.register(
             self.process_phone_number, UserRegistrationForm.phone_number
@@ -71,7 +68,7 @@ class UserHandler(Handler):
 
     async def authenticate(
         self,
-        callback: CallbackQuery,
+        message: Message,
         state: FSMContext,
         conv_handler: ConversationHandler,
     ) -> None:
@@ -81,19 +78,18 @@ class UserHandler(Handler):
         Otherwise, redirects to registration.
         """
 
-        user_id = callback.from_user.id
+        user_id = message.from_user.id  # type: ignore
 
         try:
             current_user: User = self.user_repository.get_user_by_id(tg_user_id=user_id)
 
             await state.update_data(current_user=current_user)
 
-            await conv_handler.cmd_start(callback.message, state)
+            await conv_handler.cmd_start(message=message, state=state)
         except UserNotFound:
-            await callback.message.edit_text(  # type: ignore
+            await message.answer(
                 text=REGISTER_CONFIRMATION, reply_markup=register_confirmation_kb()
             )
-            await callback.answer()
 
     async def confirm_registration(
         self, callback: "CallbackQuery", state: "FSMContext"

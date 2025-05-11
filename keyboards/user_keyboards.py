@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
-from locales.uz import RETURN_TO_MAIN
+from locales import (CREATE_DOCUMENT, MY_DOCUMENTS, REGISTER, RETURN_TO_MAIN,
+                     SHARE_PHONE_NUMBER)
 from utils import InlineKeyboardService, ReplyKeyboardService
-from locales import CREATE_DOCUMENT, REGISTER, SHARE_PHONE_NUMBER, MY_DOCUMENTS
 
 if TYPE_CHECKING:
     from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup

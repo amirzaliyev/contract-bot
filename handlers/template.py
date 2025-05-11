@@ -1,33 +1,28 @@
-from typing import Dict, List, TYPE_CHECKING
-from aiogram import F
-from aiogram.types import FSInputFile
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.filters import and_f
+from typing import TYPE_CHECKING, Dict, List
 
+from aiogram import F
+from aiogram.filters import and_f
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import FSInputFile
 
 from data.models.document import Document
 from data.repositories import ITemplateFieldRepository
-from data.repositories.document_repository import DocumentNotFound, IDocumentRepository
+from data.repositories.document_repository import (DocumentNotFound,
+                                                   IDocumentRepository)
 from handlers.handler import Handler
 from keyboards import doc_create_confirmation, list_of_templates
+from locales import (CREATE_DOC, CREATE_DOCUMENT, NO_DETAILS, NO_TEMPLATES,
+                     PROCESSING_DOC, SELECT_TEMPLATE, SUMMARY, YES)
 from utils.doc_editor import DocumentService
-from locales import (
-    CREATE_DOCUMENT,
-    NO_DETAILS,
-    SUMMARY,
-    CREATE_DOC,
-    YES,
-    PROCESSING_DOC,
-    SELECT_TEMPLATE,
-    NO_TEMPLATES,
-)
+
 from .handler import Handler
 
 if TYPE_CHECKING:
-    from aiogram import Router
-    from aiogram.types import Message, CallbackQuery
-    from aiogram.fsm.context import FSMContext
     from re import Match
+
+    from aiogram import Router
+    from aiogram.fsm.context import FSMContext
+    from aiogram.types import CallbackQuery, Message
 
 
 class FillTemplate(StatesGroup):
@@ -126,7 +121,7 @@ class TemplateHandler(Handler):
             await callback.message.edit_text(str(e))  # type: ignore
 
     def _extract_required_fields(self, template_id: int) -> List[Dict[str, str]]:
-        fields = self._temp_field_repo.get_all(document_id=template_id)
+        fields = self._temp_field_repo.get_all(template_id=template_id)
 
         required_fields = []
         for field in fields:

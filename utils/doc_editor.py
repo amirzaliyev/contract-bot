@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import os
 from pathlib import Path
 from typing import Dict
 from uuid import uuid4
@@ -7,7 +9,8 @@ from docx import Document as PyDocument
 
 from config import BOT_DIR, DOCS_DIR
 from data.models import Document
-from data.repositories.document_repository import DocumentNotFound, IDocumentRepository
+from data.repositories.document_repository import (DocumentNotFound,
+                                                   IDocumentRepository)
 
 
 class DocumentCreationUnsuccessful(Exception):
@@ -38,7 +41,7 @@ class DocumentService:
         except DocumentNotFound as e:
             raise DocumentCreationUnsuccessful(
                 f"Document is not created because {str(e).lower()}"
-            )
+            ) from e
 
         template_path = Path.joinpath(BOT_DIR, template.file_path)
 
@@ -51,8 +54,12 @@ class DocumentService:
             user_id=user_id, template_id=template_id
         )
 
+        # create directory if doesn't exist
+        destination_dir = Path(DOCS_DIR, f"{user_id}")
+        os.makedirs(destination_dir, exist_ok=True)
+
         file_name = self._generate_file_name()
-        output_path = Path.joinpath(DOCS_DIR, f"{user_id}", file_name)
+        output_path = Path.joinpath(destination_dir, file_name)
         relative_path = str(output_path.relative_to(BOT_DIR).as_posix())
 
         # file path as string
